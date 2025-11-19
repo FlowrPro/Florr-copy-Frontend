@@ -30,7 +30,7 @@ function startGame() {
   canvas.style.display = "block";
   chat.style.display = "block";
 
-  socket = new WebSocket("wss://your-render-backend.onrender.com"); // ← PUT YOUR RENDER WS URL HERE
+  socket = new WebSocket("https://florr-copy-backend.onrender.com"); 
   socket.onopen = () => socket.send(JSON.stringify({ type: "join", username }));
   socket.onmessage = (msg) => {
     const data = JSON.parse(msg.data);
