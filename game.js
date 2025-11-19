@@ -7,13 +7,21 @@ const messages = document.getElementById("messages");
 const chatInput = document.getElementById("chatInput");
 
 const player = {
-  x: 400, y: 300, petals: [], inventory: [], hotbar: []
+  x: 400, y: 300, petals: [], inventory: [], hotbar: [], speed: 2
 };
 
 const mobs = [
-  { x: 100, y: 100, hp: 50, type: "beetle" },
-  { x: 300, y: 200, hp: 30, type: "worm" }
+  { x: 100, y: 100, hp: 50, type: "beetle", drop: "leaf" },
+  { x: 300, y: 200, hp: 30, type: "worm", drop: "fast" }
 ];
+
+const petalTypes = {
+  leaf: { color: "green", rarity: "common" },
+  fast: { color: "yellow", rarity: "uncommon" },
+  twin: { color: "blue", rarity: "rare" },
+  rice: { color: "purple", rarity: "epic" },
+  triplet: { color: "orange", rarity: "unique" }
+};
 
 function startGame() {
   username = document.getElementById("username").value;
@@ -22,7 +30,7 @@ function startGame() {
   canvas.style.display = "block";
   chat.style.display = "block";
 
-  socket = new WebSocket("wss://your-render-backend.onrender.com");
+  socket = new WebSocket("wss://your-render-backend.onrender.com"); // ← PUT YOUR RENDER WS URL HERE
   socket.onopen = () => socket.send(JSON.stringify({ type: "join", username }));
   socket.onmessage = (msg) => {
     const data = JSON.parse(msg.data);
@@ -41,7 +49,24 @@ function startGame() {
     }
   });
 
+  document.addEventListener("keydown", handleKeys);
   requestAnimationFrame(gameLoop);
+}
+
+function handleKeys(e) {
+  if (e.key === "ArrowUp") player.y -= player.speed;
+  if (e.key === "ArrowDown") player.y += player.speed;
+  if (e.key === "ArrowLeft") player.x -= player.speed;
+  if (e.key === "ArrowRight") player.x += player.speed;
+  if (e.key === "q") swapHotbar(-1);
+  if (e.key === "e") swapHotbar(1);
+}
+
+function swapHotbar(dir) {
+  if (player.hotbar.length > 1) {
+    const first = player.hotbar.shift();
+    player.hotbar.push(first);
+  }
 }
 
 function drawPlayer() {
@@ -53,7 +78,7 @@ function drawPlayer() {
     const angle = (i / player.petals.length) * Math.PI * 2;
     const px = player.x + Math.cos(angle) * 40;
     const py = player.y + Math.sin(angle) * 40;
-    ctx.fillStyle = p.color;
+    ctx.fillStyle = petalTypes[p].color;
     ctx.beginPath();
     ctx.arc(px, py, 10, 0, Math.PI * 2);
     ctx.fill();
@@ -66,6 +91,36 @@ function drawMobs() {
     ctx.beginPath();
     ctx.arc(m.x, m.y, 15, 0, Math.PI * 2);
     ctx.fill();
+
+    const dx = player.x - m.x;
+    const dy = player.y - m.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 35) {
+      m.hp -= 1;
+      if (m.hp <= 0) {
+        player.petals.push(m.drop);
+        player.inventory.push(m.drop);
+        mobs.splice(mobs.indexOf(m), 1);
+      }
+    }
+  });
+}
+
+function drawInventory() {
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillRect(10, 10, 200, 100);
+  player.inventory.forEach((p, i) => {
+    ctx.fillStyle = petalTypes[p].color;
+    ctx.fillRect(20 + i * 20, 20, 15, 15);
+  });
+}
+
+function drawHotbar() {
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillRect(300, 550, 200, 40);
+  player.hotbar.forEach((p, i) => {
+    ctx.fillStyle = petalTypes[p].color;
+    ctx.fillRect(310 + i * 30, 560, 20, 20);
   });
 }
 
@@ -73,5 +128,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawPlayer();
   drawMobs();
+  drawInventory();
+  drawHotbar();
   requestAnimationFrame(gameLoop);
 }
