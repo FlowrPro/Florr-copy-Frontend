@@ -1,20 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Florr.io Clone</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Plorr</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="login">
-    <input id="username" placeholder="Enter username" />
-    <button onclick="startGame()">Play Game</button>
+  <!-- Homescreen overlay -->
+  <div id="homescreen">
+    <h1 class="game-title">Plorr.io (Unreleased)</h1>
+
+    <!-- Login/Register panel -->
+    <div class="auth-container">
+      <input type="text" id="auth-username" placeholder="Username">
+      <input type="password" id="auth-password" placeholder="Password">
+      <button id="register-btn">Register</button>
+      <button id="login-btn">Login</button>
+    </div>
   </div>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <div id="chat">
-    <div id="messages"></div>
-    <input id="chatInput" placeholder="Type message..." />
+
+  <!-- Settings button top-left -->
+  <button id="settings-btn">
+    <span class="gear-icon">
+      <span></span><span></span><span></span><span></span>
+    </span>
+  </button>
+
+  <!-- Fullscreen canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+<!-- Settings panel -->
+<div id="settings-panel">
+  <div class="settings-box">
+    <div class="settings-tabs">
+      <button class="tab-btn active" data-tab="game">Game</button>
+      <button class="tab-btn" data-tab="controls">Controls</button>
+      <button class="tab-btn" data-tab="credits">Credits</button>
+    </div>
+
+    <!-- Game tab -->
+    <div class="tab-content" id="tab-game">
+      <label>
+        <input type="checkbox" id="toggle-hitboxes">
+        Show Hitboxes
+      </label>
+    </div>
+
+    <!-- Controls tab -->
+    <div class="tab-content hidden" id="tab-controls">
+      <label><input type="checkbox" id="toggle-mouse"> Enable Mouse Movement</label>
+    </div>
+
+    <!-- Credits tab -->
+    <div class="tab-content hidden" id="tab-credits"></div>
+
+    <button id="close-settings">Close</button>
   </div>
-  <script src="game.js"></script>
+</div>
+
+  <!-- Hotbar -->
+  <div id="hotbar"></div>
+
+  <!-- Inventory toggle -->
+  <button id="invToggle" class="slot common">
+    <div class="icon basic-petal"></div>
+  </button>
+
+  <!-- Inventory -->
+  <div id="inventory" class="hidden"></div>
+
+  <!-- Death screen -->
+  <div id="death-screen" class="hidden">
+    <div class="death-box">
+      <h2>You have died</h2>
+      <button id="respawn-btn">Respawn</button>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <input id="chat-input" type="text" placeholder="Type a message..." />
+  </div>
+
+  <!-- Socket.IO client -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <!-- Game logic -->
+  <script type="module" src="game.js"></script>
 </body>
 </html>
